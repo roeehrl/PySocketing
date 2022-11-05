@@ -1,0 +1,11 @@
+{
+    "sqltools.connections": [
+        {
+            "previewLimit": 50,
+            "driver": "SQLite",
+            "name": "server",
+            "database": "${workspaceFolder:mamanadam}/server.db"
+        }
+    ],
+    "sqltools.useNodeRuntime": true
+}
