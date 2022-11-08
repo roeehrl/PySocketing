@@ -82,12 +82,14 @@ class client:
             try:
                 with open ('me.info') as info_file:
                     self.prompt()
-                    self.switcher()
                         
-            except:
+            except FileNotFoundError:
                 print("me.info file not found")
                 self.prompt()
-                self.switcher()
+            
+            except FileExistsError:
+                print("me.info file exists")
+                pass
 
     @lazy_property
     def key(self):
@@ -145,8 +147,12 @@ class client:
 
             case '2101':
                 print('got 2101, registeration failure')
+                sym = lines[3][16:]
+                print(f"enc_sym: {sym}")
                 self.sym_key = decryptor.decrypt_sym_key(lines[3][16:])
                 print(f"aes from server: {self.sym_key}")
+                self.prompt()
+
 
 
 
@@ -221,6 +227,7 @@ class client:
 
             case '1101':
                 payload.write(self.name.encode(encoding='ascii'))
+                
                 payload.write(encryptor.enc64(self.key[1]).encode('ascii'))
                 print('sending public_key: ')
                 print((self.key[1]))

@@ -103,16 +103,24 @@ class server:
         def set_pk(self,pk) -> Any: #setting the public key for the client, method returrns the symetric key encrypted with public key
             
             self.pk = pk
-            
-            key = RSA.import_key(decryptor.dec64(pk))
-            cipher_rsa = PKCS1_OAEP.new(key)
-            if(self.session_key):
-                pass
+            if(isinstance(self.pk,str)):
+                key = RSA.import_key(decryptor.dec64(pk))
+                print(f"the pk: {decryptor.dec64(pk)}")
+
             else:
+                key = RSA.import_key(pk)
+                print(f"the pk: {pk}")
+
+            cipher_rsa = PKCS1_OAEP.new(key)
+            try:
+                if(self.session_key):
+                    pass
+            except AttributeError:
+                print("client has no session key set yet.")
                 self.session_key = get_random_bytes(16)
             enc_session_key = cipher_rsa.encrypt(self.session_key)
 
-
+            print(f"send enc session:  {enc_session_key} ")
             return enc_session_key
         
         def set_file(self,name: bytes,content): #this is called when a file is received. creates in-memory representation for current file per client
@@ -235,7 +243,7 @@ class server:
                         if(data.client.registered): #check if client is registered in DB
                             data.client.session_key = self.server_db.get_sym_key(data.client.client_id)
                             pk = self.server_db.get_pk(data.client.client_id) #to implement! need to create a get uuid accepting the client as a server method!!!!!
-                            sym_key = data.client.set_pk(pk,session_key = data.client.session_key) #set the client object with its pk in order to receive a session key encrypted with it
+                            sym_key = data.client.set_pk(pk) #set the client object with its pk in order to receive a session key encrypted with it
                         else: 
                             sym_key = data.client.set_pk(str(lines[4],encoding='ascii').split('!')[1]) #inital set of client received pk to get the session's symmetric key
 
